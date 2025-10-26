@@ -1,14 +1,5 @@
 #!/bin/bash
-#
-# NMAP HELPER - Script educativo para practicar Bash + Nmap
-# Entregar como tarea: incluye menú, funciones y comprobaciones básicas.
-#
-# NOTA: usa este script solo en equipos/redes tuyas o con permiso explícito.
-#
 
-# -----------------------
-# Comprobaciones iniciales
-# -----------------------
 check_nmap() {
   if ! command -v nmap >/dev/null 2>&1; then
     echo "nmap no está instalado. Instala con: sudo apt update && sudo apt install -y nmap"
@@ -18,181 +9,127 @@ check_nmap() {
 
 check_sudo() {
   if [ "$(id -u)" -ne 0 ]; then
-    echo "AVISO: Algunas opciones (p.ej. -sS, -O, -PR) funcionan mejor con sudo."
+    echo "AVISO: Algunas opciones funcionan mejor con sudo."
     echo "Puedes ejecutar este script con sudo o introducir la contraseña cuando se solicite."
     echo
   fi
 }
 
-# -----------------------------------
-# Helper para leer target y directorio
-# -----------------------------------
 read_target_and_outdir() {
   read -r -p "Introduce objetivo (IP o hostname): " TARGET
   if [ -z "${TARGET:-}" ]; then
     echo "Objetivo no especificado. Abortando."
     return 1
   fi
-
   read -r -p "Directorio para resultados (por defecto ./nmap_results): " OUTDIR
   OUTDIR=${OUTDIR:-./nmap_results}
   mkdir -p "$OUTDIR"
-
   TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
   return 0
 }
 
-# -----------------------
-# Función 1: ping_scan
-# -----------------------
-# Estrategia:
-# 1) nmap -sn (estándar)
-# 2) si no detecta host, intenta ARP explícito (-PR)
-# 3) si sigue sin detectar, hace un SYN rápido en top-20 para confirmar
 ping_scan() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/ping_${TARGET}_${TIMESTAMP}.txt"
-
-  echo "Intento 1: escaneo 'ping' estándar (ICMP/TCP/ARP) a $TARGET..."
-  # usamos sudo para poder aprovechar ARP cuando proceda
   sudo nmap -sn "$TARGET" -oN "$OUTFILE"
 
-  # Si nmap indica "Host seems down" o "0 hosts up"
   if grep -qE "0 hosts up|Host seems down" "$OUTFILE"; then
-    echo "Ping estándar no detectó host. Intentando ARP explícito (-PR)..."
+    echo "Ping estándar no detectó host. Intentando ARP (-PR)..."
     OUTFILE_ARP="$OUTDIR/ping_arp_${TARGET}_${TIMESTAMP}.txt"
     sudo nmap -sn -PR "$TARGET" -oN "$OUTFILE_ARP"
 
     if ! grep -qE "0 hosts up|Host seems down" "$OUTFILE_ARP"; then
-      echo "ARP detectó el host como vivo. Resultado: $OUTFILE_ARP"
+      echo "ARP detectó el host. Resultado: $OUTFILE_ARP"
       return
     fi
 
-    echo "ARP tampoco detectó host. Haciendo SYN rápido (top 20) para confirmar 'host up'..."
+    echo "ARP tampoco detectó host. Haciendo SYN rápido (top 20)..."
     OUTFILE_SYN="$OUTDIR/ping_synquick_${TARGET}_${TIMESTAMP}.txt"
     sudo nmap -sS --top-ports 20 -T4 -v "$TARGET" -oN "$OUTFILE_SYN"
 
     if grep -qE "Host is up|open" "$OUTFILE_SYN"; then
-      echo "Escaneo SYN encontró puertos abiertos -> host up. Resultado: $OUTFILE_SYN"
+      echo "SYN encontró puertos abiertos -> host up. Resultado: $OUTFILE_SYN"
       return
     else
-      echo "SYN rápido no encontró puertos. El host puede estar caído o altamente filtrado."
-      echo "Resultados guardados: $OUTFILE, $OUTFILE_ARP, $OUTFILE_SYN"
+      echo "Host puede estar caído o filtrado."
+      echo "Resultados: $OUTFILE, $OUTFILE_ARP, $OUTFILE_SYN"
       return
     fi
   else
-    echo "Host detectado por el ping estándar. Resultado: $OUTFILE"
+    echo "Host detectado. Resultado: $OUTFILE"
   fi
 }
 
-# -----------------------
-# Función 2: tcp_syn_top
-# -----------------------
 tcp_syn_top() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/syn_top_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando TCP SYN scan (--top-ports 100 -sS -T4) a $TARGET..."
   sudo nmap -sS --top-ports 100 -T4 -v "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 3: tcp_connect_ports
-# -----------------------
 tcp_connect_ports() {
   read_target_and_outdir || return
   read -r -p "Introduce puertos (p.ej. 22,80,443 o 1-1024) [por defecto 1-1024]: " PORTS
   PORTS=${PORTS:-1-1024}
   OUTFILE="$OUTDIR/connect_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando TCP connect scan (-sT -p $PORTS) a $TARGET..."
   nmap -sT -p "$PORTS" -v "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 4: service_version
-# -----------------------
 service_version() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/service_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando -sV (detección de servicios) y -sC (scripts por defecto) a $TARGET..."
   sudo nmap -sV -sC -p- -T4 "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 5: os_detection
-# -----------------------
 os_detection() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/os_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando -O (detectar sistema operativo) a $TARGET..."
   sudo nmap -O -v "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 6: udp_scan
-# -----------------------
 udp_scan() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/udp_${TARGET}_${TIMESTAMP}.txt"
-  echo "Escaneo UDP (lento). Solo en entornos de laboratorio..."
+  echo "Escaneo UDP (lento). Solo en laboratorio..."
   sudo nmap -sU -p- -T3 "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 7: aggressive_scan
-# -----------------------
 aggressive_scan() {
   read_target_and_outdir || return
   OUTFILE="$OUTDIR/aggressive_${TARGET}_${TIMESTAMP}.txt"
-  echo "Escaneo agresivo (-A) a $TARGET..."
   sudo nmap -A -p- -T4 "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 8: nse_vuln_scan
-# -----------------------
 nse_vuln_scan() {
   read_target_and_outdir || return
-  read -r -p "Introduce categoría o script (p.ej. vuln,safe,auth,http-vuln*). Por defecto 'vuln': " NSE
+  read -r -p "Introduce categoría/script (ej: vuln,http-vuln*). Por defecto 'vuln': " NSE
   NSE=${NSE:-vuln}
   OUTFILE="$OUTDIR/nse_${NSE}_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando NSE scripts --script $NSE a $TARGET..."
   sudo nmap --script="$NSE" -p- -T4 "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 9: example_output_formats
-# -----------------------
 example_output_formats() {
   read_target_and_outdir || return
   OUTPREFIX="$OUTDIR/output_${TARGET}_${TIMESTAMP}"
-  echo "Ejecutando ejemplo con -oN (normal), -oX (xml) y -oG (grepable)..."
   nmap -sV --top-ports 50 "$TARGET" -oN "${OUTPREFIX}.nmap" -oX "${OUTPREFIX}.xml" -oG "${OUTPREFIX}.gnmap"
   echo "Resultados: ${OUTPREFIX}.nmap, ${OUTPREFIX}.xml, ${OUTPREFIX}.gnmap"
 }
 
-# -----------------------
-# Función 10: no_ping_scan
-# -----------------------
 no_ping_scan() {
   read_target_and_outdir || return
   read -r -p "Introduce puertos (por defecto --top-ports 100): " PORTS
   PORTS=${PORTS:---top-ports 100}
   OUTFILE="$OUTDIR/noping_${TARGET}_${TIMESTAMP}.txt"
-  echo "Ejecutando -Pn (no ping) a $TARGET..."
   nmap -Pn $PORTS -T4 "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 11: custom_nmap
-# -----------------------
 custom_nmap() {
   read -r -p "Introduce opciones para nmap (ej: -sV --top-ports 50): " OPTS
   if [ -z "${OPTS:-}" ]; then
@@ -217,22 +154,15 @@ custom_nmap() {
     return
   fi
 
-  # Ejecuta la línea pedida (sin eval inseguro)
   nmap $OPTS "$TARGET" -oN "$OUTFILE"
   echo "Resultado: $OUTFILE"
 }
 
-# -----------------------
-# Función 12: exit_script
-# -----------------------
 exit_script() {
   echo "Saliendo..."
   exit 0
 }
 
-# -----------------------
-# Nota legal / ética
-# -----------------------
 usage_note() {
   cat <<EOF
 
@@ -244,9 +174,6 @@ IMPORTANTE (ÉTICA Y LEGAL):
 EOF
 }
 
-# -----------------------
-# Menú principal
-# -----------------------
 main_menu() {
   while true; do
     clear
@@ -269,26 +196,24 @@ main_menu() {
     read -r -p "Elige opción [1-12]: " opt
 
     case "$opt" in
-      1) ping_scan; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      2) tcp_syn_top; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      3) tcp_connect_ports; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      4) service_version; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      5) os_detection; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      6) udp_scan; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      7) aggressive_scan; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      8) nse_vuln_scan; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      9) example_output_formats; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      10) no_ping_scan; usage_note; read -r -p "Presiona ENTER para continuar...";;
-      11) custom_nmap; usage_note; read -r -p "Presiona ENTER para continuar...";;
+      1) ping_scan; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      2) tcp_syn_top; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      3) tcp_connect_ports; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      4) service_version; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      5) os_detection; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      6) udp_scan; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      7) aggressive_scan; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      8) nse_vuln_scan; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      9) example_output_formats; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      10) no_ping_scan; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
+      11) custom_nmap; usage_note; echo; read -r -p "Pulsa cualquier tecla para continuar...";;
       12) exit_script;;
-      *) echo "Opción no válida."; read -r -p "Presiona ENTER para continuar...";;
+      *) echo "Opción no válida."; read -r -p "Pulsa cualquier tecla para continuar...";;
     esac
   done
 }
 
-# -----------------------
-# Arranque del script
-# -----------------------
 check_nmap
 check_sudo
 main_menu
+

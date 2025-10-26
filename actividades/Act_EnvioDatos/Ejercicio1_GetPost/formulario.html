@@ -1,0 +1,114 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Formulario PHP</title>
+<style>
+  body { font-family: Arial; margin: 20px; }
+  input, select, textarea { margin: 5px; }
+  .errorCampo {
+    border: 2px solid red;
+    background-color: #ffe6e6;
+  }
+</style>
+
+<script>
+function validarFormulario() {
+  const form = document.forms["miFormulario"];
+  let nombre = form.nombre;
+  let edad = form.edad;
+  let correo = form.correo;
+  let provincia = form.provincia;
+  let fecha = form.fecha;
+  let telfijo = form.telfijo;
+  let telmovil = form.telmovil;
+  let hijos = form.hijos;
+
+ //Creo para errores un array vacio. Luego voy añadiendo mensajes de error con .push si hay algun campo que no cumple las condiciones.
+
+  let errores = [];
+
+  // Para quitar css de error de validaciones anteriores
+  [nombre, edad, correo, provincia, fecha, telfijo, telmovil].forEach(campo => campo.classList.remove("errorCampo"));
+
+  //Si da algun error, muestro todos los errores en un alert y devuelvo false para que no se envie el formulario.
+
+  
+  if (nombre.value.trim().length < 2 || nombre.value.trim().length > 50) {
+    errores.push("Nombre inválido");
+    nombre.classList.add("errorCampo");
+  }
+
+  if (isNaN(edad.value) || edad.value < 1 || edad.value > 99) {
+    errores.push("Edad inválida");
+    edad.classList.add("errorCampo");
+  }
+
+  const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!correoRegex.test(correo.value.trim())) {
+    errores.push("Correo inválido");
+    correo.classList.add("errorCampo");
+  }
+
+  if (provincia.value === "") {
+    errores.push("Seleccione provincia");
+    provincia.classList.add("errorCampo");
+  }
+
+  const fechaRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+  if (!fechaRegex.test(fecha.value.trim())) {
+    errores.push("Formato de fecha inválido (DD/MM/AAAA)");
+    fecha.classList.add("errorCampo");
+  }
+
+  const soloNumeros = /^\d*$/;
+  if (telfijo.value.trim() !== "" && !soloNumeros.test(telfijo.value.trim())) {
+    errores.push("Teléfono fijo inválido (solo números)");
+    telfijo.classList.add("errorCampo");
+  }
+
+  if (telmovil.value.trim() !== "" && !soloNumeros.test(telmovil.value.trim())) {
+    errores.push("Teléfono móvil inválido (solo números)");
+    telmovil.classList.add("errorCampo");
+  }
+
+  if (!form.hijos.value) {
+    errores.push("Seleccione si tiene hijos");
+   
+  }
+
+  if (errores.length > 0) {
+    alert(errores.join("\n"));
+    return false;
+  }
+
+  return true;
+}
+</script>
+</head>
+<body>
+<h2>Formulario de datos personales</h2>
+<form name="miFormulario" action="procesar.php" method="post" onsubmit="return validarFormulario()" novalidate>
+  Nombre y Apellidos: <input type="text" name="nombre" required><br>
+  Edad: <input type="number" name="edad" min="1" max="99" required><br>
+  Correo: <input type="text" name="correo" required><br>
+  Provincia:
+  <select name="provincia" required>
+    <option value="">Seleccione...</option>
+    <option>Madrid</option>
+    <option>Barcelona</option>
+    <option>Valencia</option>
+    <option>Sevilla</option>
+  </select><br>
+  Fecha de nacimiento: <input type="text" name="fecha" placeholder="DD/MM/AAAA" required><br>
+  Teléfono fijo: <input type="text" name="telfijo"><br>
+  Teléfono móvil: <input type="text" name="telmovil"><br>
+  ¿Tiene hijos? 
+  <input type="radio" name="hijos" value="si" required> Sí
+  <input type="radio" name="hijos" value="no"> No<br><br>
+  <input type="submit" value="Enviar">
+</form>
+</body>
+</html>

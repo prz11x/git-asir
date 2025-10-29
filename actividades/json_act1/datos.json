@@ -1,0 +1,10 @@
+{
+  "nombre": "Ana",
+  "edad": 30,
+  "skills": ["bash", "python", "jq"],
+  "direccion": { "ciudad": "Madrid", "cp": "28001" },
+  "usuarios": [
+    { "nombre": "Ana", "edad": 30 },
+    { "nombre": "Luis", "edad": 22 }
+  ]
+}

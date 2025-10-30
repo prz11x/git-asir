@@ -135,5 +135,3 @@ Verifica los volúmenes creados:
 
 
 Indica los comandos o el modo de realizar las siguientes acciones desde la terminal y pon un ejemplo de uso y describe lo que hace:
-
-C:\Users\pablo\Desktop\BOVEDAS\ASIR2\Instalando Docker en Windows.md

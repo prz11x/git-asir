@@ -1,0 +1,423 @@
+Sombras en la Red: La Trama de los Contenedores
+
+
+
+Un Dockerfile es un archivo de texto que contiene instrucciones que Docker usa para construir una imagen personalizada.
+
+Piensa en él como una “receta”:
+
+Cada línea indica un paso (como FROM, RUN, COPY, etc.).
+
+Cuando se ejecuta docker build, Docker sigue esas instrucciones y genera una imagen.
+
+Estructura básica de un Dockerfile
+# Imagen base
+FROM ubuntu:22.04
+
+# Información del autor o mantenedor
+LABEL maintainer="antonio@ejemplo.com"
+
+# Instalación de dependencias
+RUN apt update && apt install -y nginx
+
+# Copiar archivos al contenedor
+COPY index.html /var/www/html/
+
+# Exponer un puerto
+EXPOSE 80
+
+# Comando por defecto al iniciar el contenedor
+CMD ["nginx", "-g", "daemon off;"]
+
+Explicación línea por línea:
+
+FROM: punto de partida. Toda imagen parte de otra imagen.
+
+LABEL: metadatos opcionales.
+
+RUN: ejecuta comandos dentro de la imagen durante la construcción.
+
+COPY o ADD: llevan archivos desde tu máquina al contenedor.
+
+EXPOSE: indica qué puerto usa el servicio.
+
+CMD: define qué se ejecuta al iniciar el contenedor.
+
+Cómo construir y ejecutar la imagen
+Guarda el Dockerfile (por ejemplo, en una carpeta miweb/).
+
+Desde esa carpeta, ejecuta:
+
+docker build -t miweb:1.0 .
+El punto . indica que use el Dockerfile de la carpeta actual.
+
+Luego ejecuta el contenedor:
+
+docker run -d -p 8080:80 miweb:1.0
+Y podrás abrir http://localhost:8080 para ver tu página.
+
+Ejemplo 2: Dockerfile para una app en Python
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python", "app.py"]
+Este caso muestra cómo:
+
+Se usa una imagen base de Python.
+
+Se instala lo necesario con pip.
+
+Se copia el código de la aplicación.
+
+Se expone el puerto del servicio (por ejemplo, Flask).
+
+Se ejecuta la app con CMD.
+
+Ejemplo 3: Dockerfile para PHP + Apache
+FROM php:8.2-apache
+COPY ./htdocs /var/www/html/
+EXPOSE 80
+Así pueden tener un servidor web con PHP.
+Luego ejecutan:
+
+docker build -t miwebphp . docker run -d -p 8080:80 miwebphp
+Buenas prácticas
+Siempre usa imágenes base oficiales.
+
+Agrupa las instalaciones en una sola instrucción RUN para reducir el tamaño de la imagen.
+
+Usa .dockerignore para no copiar archivos innecesarios.
+
+Define variables con ENV si hay configuraciones reutilizables.
+
+Usa ENTRYPOINT cuando quieras ejecutar siempre el mismo comando, incluso si el usuario añade argumentos extra.
+
+Instrucción WORKDIR
+WORKDIR establece el directorio de trabajo dentro del contenedor.
+Equivale a hacer un cd /app dentro del entorno del contenedor antes de ejecutar los siguientes comandos.
+
+Por ejemplo:
+
+FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+Qué hace realmente:
+Crea el directorio si no existe (/app en este caso).
+
+Cambia el contexto: a partir de esa línea, todos los comandos (COPY, RUN, CMD, etc.) se ejecutan dentro de /app.
+
+Así, COPY . . copia el contenido del proyecto local dentro del contenedor en /app, y python app.py se ejecutará desde ahí.
+
+Sin WORKDIR
+Si no la usas, Docker ejecuta todo desde / (la raíz del contenedor).
+Ejemplo:
+
+FROM python:3.11-slim
+COPY . .
+CMD ["python", "app.py"]
+Esto también funcionará, pero el código quedará desperdigado en / — algo poco limpio y poco profesional.
+
+ 
+
+¿Qué son las variables de entorno en Docker?
+Las variables de entorno (ENV) son valores que se inyectan en el entorno del contenedor y que las aplicaciones pueden usar para configurarse.
+
+Por ejemplo:
+
+Contraseña del root
+
+Nombre de la base de datos
+
+Usuario y contraseña de aplicación
+
+Docker las pasa al contenedor con la instrucción ENV en el Dockerfile o con la opción -e en el docker run.
+
+ Ejemplo básico de Dockerfile con MySQL
+# Imagen base oficial de MySQL
+FROM mysql:8.0
+# Variables de entorno
+ENV MYSQL_ROOT_PASSWORD=supersegura
+ENV MYSQL_DATABASE=tienda
+ENV MYSQL_USER=usuario
+ENV MYSQL_PASSWORD=1234
+# Exponer el puerto de MySQL
+EXPOSE 3306
+Explicación:
+MYSQL_ROOT_PASSWORD: establece la contraseña del usuario root.
+
+MYSQL_DATABASE: crea automáticamente una base de datos llamada tienda.
+
+MYSQL_USER y MYSQL_PASSWORD: crean un usuario adicional con permisos sobre esa base.
+
+EXPOSE 3306: indica el puerto por defecto del servicio.
+
+Construcción y ejecución
+Construir la imagen:
+
+docker build -t mysql-demo .
+Ejecutar el contenedor:
+
+docker run -d -p 3306:3306 --name contmysql mysql-demo
+Con eso, MySQL arrancará con la configuración establecida en las variables del Dockerfile.
+
+Alternativa más flexible (sin tocar el Dockerfile)
+También se pueden pasar las variables en tiempo de ejecución, lo que se recomienda para producción (para no dejar contraseñas dentro del Dockerfile):
+
+docker run -d -p 3306:3306 \
+--name mysql-demo \
+-e MYSQL_ROOT_PASSWORD=supersegura \
+-e MYSQL_DATABASE=tienda \
+-e MYSQL_USER=usuario \
+-e MYSQL_PASSWORD=1234 \
+mysql:8.0
+Así puedes usar directamente la imagen oficial de MySQL sin construir una nueva.
+
+Comprobación dentro del contenedor
+Para entrar al contenedor y verificar:
+
+docker exec -it mysql-demo mysql -u root -p
+Introduce la contraseña (supersegura) y luego:
+
+SHOW DATABASES;
+Verás que existe la base tienda.
+
+Usando un .env externo
+Otra práctica útil es usar un archivo .env:
+
+Archivo .env
+
+MYSQL_ROOT_PASSWORD=supersegura
+MYSQL_DATABASE=tienda
+MYSQL_USER=usuario
+MYSQL_PASSWORD=1234
+Y luego ejecutarlo con:
+
+docker run -d --env-file .env -p 3306:3306 --name mysql-demo mysql:8.0
+LABORATORIO - TAREA
+Montar una infraestructura de laboratorio Dockerizada donde cada contenedor representa una parte de una red vulnerable, simulando un pequeño entorno que deben administrar, securizar o incluso “atacar” de forma controlada.
+
+Descripción general
+Cada alumno desplegará una red interna en su máquina virtual Ubuntu Server, con varios contenedores Docker que simulen los componentes de una empresa ficticia hackeable llamada:
+
+"CyberCorp Ltd."
+
+El propósito es:
+
+Aprender a crear y gestionar contenedores.
+
+Comprender la comunicación entre ellos
+
+Aplicar conceptos de seguridad: contraseñas, puertos, logs, aislamiento, backups.
+
+Divertirse con un entorno “ethical hacking friendly”.
+
+Infraestructura propuesta
+Servicio	Imagen base	Rol / Descripción	Puertos
+nginx-web	nginx:latest	Página corporativa vulnerable (HTML + PHP)	8080
+db-server	mysql:8.0	Base de datos de empleados con credenciales débiles	3306
+ftp-server	delfer/alpine-ftp-server	Servidor FTP para intercambio de archivos	21
+mail-server	maildev/maildev	Servidor SMTP simulado (visualización de correos en web)	1080
+monitor	grafana/grafana	Panel de monitorización interno	3000
+attacker	kalilinux/kali-rolling	Contenedor con herramientas ofensivas	shell interactiva
+logger	fluentd	Centralización de l
+1) Preparación en la VM (comandos iniciales)
+# Actualizar y asegurarnos de tener Docker
+sudo apt update && sudo apt install -y docker.io
+# Iniciar y activar Docker
+sudo systemctl enable --now docker
+# Añadir tu usuario al grupo docker (opcional, cerrar sesión/reiniciar)
+sudo usermod -aG docker $USER
+# Crear red y volumenes
+docker network create cybernet
+docker volume create mysql_data
+docker volume create web_html
+2) Estructura de carpetas (ejemplo)/home/usuario/hack-containers/
+├─ web/
+│  ├─ Dockerfile
+│  └─ html/
+│     ├─ index.php
+│     └─ secret/flag.txt
+├─ mysql/
+│  ├─ Dockerfile
+│  └─ init-db/
+│     └─ init.sql
+├─ ftp/
+│  └─ Dockerfile
+├─ mail/
+│  └─ Dockerfile
+├─ attacker/
+│  └─ Dockerfile
+└─ logger/
+   └─ Dockerfile
+
+3) Dockerfile + archivos — ejemplos
+A) MySQL (mysql/Dockerfile)
+Usamos la imagen oficial de MySQL como base, y añadimos un init SQL.
+
+FROM mysql:8.0
+# Copiamos scripts de inicialización (se ejecutan al primer arranque)
+COPY init-db/ /docker-entrypoint-initdb.d/ VOLUME ["/var/lib/mysql"]
+EXPOSE 3306
+mysql/init-db/init.sql (ejemplo con credenciales débiles y tabla)
+
+CREATE DATABASE empleados;
+USE empleados;
+CREATE TABLE usuarios ( id INT AUTO_INCREMENT PRIMARY KEY, usuario VARCHAR(50), password VARCHAR(50) );
+INSERT INTO usuarios (usuario, password) VALUES ('admin','admin123');
+Construir y ejecutar:
+
+cd mysql
+docker build -t ctf-mysql:1.0 . docker run -d --name mysql --network cybernet \
+-e MYSQL_ROOT_PASSWORD=rootroot \
+-v mysql_data:/var/lib/mysql \
+ctf-mysql:1.0
+B) Web vulnerable (PHP + Apache) (web/Dockerfile)
+FROM php:8.2-apache
+# Copiamos el código vulnerable
+COPY html/ /var/www/html/
+# Habilitamos mod_rewrite por si hace falta
+RUN a2enmod rewrite
+EXPOSE 80
+web/html/index.php (vulnerable ejemplo: login sin sanitizar — para SQLi)
+
+<?php
+$conn = new mysqli('mysql','root','rootroot','empleados');
+if(isset($_GET['user'])){
+    $user = $_GET['user'];
+    $res = $conn->query("SELECT * FROM usuarios WHERE usuario = '$user'");
+    if($res && $res->num_rows){
+        echo "Usuario encontrado<br>";
+    } else {
+        echo "No encontrado";
+    }
+} else {
+    echo '<a href="?user=admin">Comprobar usuario admin</a>';
+}
+?>
+web/html/secret/flag.txt
+
+FLAG{has_encontrado_la_bandera_web}
+Construir y ejecutar:
+
+cd web
+docker build -t ctf-web:1.0 .
+docker run -d --name web --network cybernet \
+  -p 8080:80 \
+  -v web_html:/var/www/html \
+  ctf-web:1.0
+# Copiar el html local al volumen (una sola vez si quieres)
+docker cp html/. web:/var/www/html/
+Nota: en index.php se conecta a host mysql (nombre del contenedor) — así los containers se resuelven por nombre dentro de la red cybernet.
+C) FTP (ftp/Dockerfile) — ejemplo simple con vsftpd
+FROM alpine:3.18
+RUN apk add --no-cache vsftpd openrc
+COPY ftp-config/vsftpd.conf /etc/vsftpd/vsftpd.conf
+# Creamos usuario demo
+RUN adduser -D -h /home/usuario ftpuser && \
+    echo "ftpuser:ftp123" | chpasswd && \
+    mkdir -p /home/usuario/ftp_upload && chown ftpuser:ftpuser /home/usuario/ftp_upload
+EXPOSE 21 20
+CMD ["sh", "-c", "vsftpd /etc/vsftpd/vsftpd.conf"]
+ 
+
+ 
+
+ftp-config/vsftpd.conf puede ser muy simple para prácticas. (Puedes proveerlo a los alumnos o generar uno básico.)
+
+Construir y ejecutar:
+
+cd ftp
+docker build -t ctf-ftp:1.0 .
+docker run -d --name ftp --network cybernet -p 2121:21 ctf-ftp:1.0
+(Nota: FTP activo/pasivo considera puertos extra; para la práctica usarlo localmente y documentar.)
+
+D) Maildev (mail server de pruebas) — Dockerfile mínimo
+FROM maildev/maildev:latest EXPOSE 1080 25
+Construir y ejecutar:
+
+cd mail
+docker build -t ctf-mail:1.0 .
+docker run -d --name mail --network cybernet -p 1080:1080 ctf-mail:1.0
+Maildev ofrece UI web en :1080 para ver emails enviados por la aplicación vulnerable.
+
+E) Logger / ELK ligero (logger/Dockerfile) — ejemplo usando busybox+fluentd sería largo.
+Puedes usar Fluentd o simplemente montar un contenedor que recoja docker logs desde fuera. Para simplicidad, propondré un contenedor fluentd base:
+
+FROM fluent/fluentd:v1.14-1
+EXPOSE 24224
+Construir y ejecutar:
+
+cd logger
+docker build -t ctf-logger:1.0 .
+docker run -d --name logger --network cybernet -p 24224:24224 ctf-logger:1.0
+F) Contenedor atacante (Kali) (attacker/Dockerfile)
+Instalamos unas herramientas útiles (nmap, nikto, sqlmap, hydra).
+
+FROM kalilinux/kali-rolling
+RUN apt update && apt install -y nmap nikto sqlmap hydra netcat-openbsd curl && apt clean
+WORKDIR /root
+CMD ["/bin/bash"]
+Construir y ejecutar (modo interactivo):
+
+cd attacker
+docker build -t ctf-kali:1.0 .
+docker run -it --name kali --network cybernet ctf-kali:1.0
+Dentro del contenedor atacas la red cybernet (ej. nmap -sV -p- web).
+
+4) Notas sobre volúmenes y persistencia
+Mysql usa -v mysql_data:/var/lib/mysql para persistencia.
+
+Web usamos -v web_html:/var/www/html para poder editar fuera y reflejar cambios.
+
+Para copiar archivos iniciales al volumen, puedes docker cp como mostré.
+
+5) RECUERDA
+# Ver containers
+docker ps -a
+
+# Logs de un contenedor
+docker logs web
+
+# Entrar a un contenedor
+docker exec -it mysql bash
+docker exec -it kali bash
+
+# Consultar red
+docker network inspect cybernet
+
+# Inspeccionar variables de entorno de un contenedor
+docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' mysql
+
+ 
+
+Retos
+Recon: desde kali hacer nmap -sV -p- --open 172.18.0.0/16 y documentar servicios.
+
+FTP-cred: conectarse a FTP (ftp user:ftpuser/ftp123) y buscar creds.txt.
+
+DB login: usar credenciales encontradas para entrar en MySQL (mysql -u admin -p admin123).
+
+SQLi: Explorar index.php y realizar un SQL injection básico para sacar datos o la flag.txt.
+
+Ejemplo payload: '?user=admin' vs '?user=admin' OR '1'='1'
+
+Mail: desde web, forzar envío de correo a Maildev y ver en la UI :1080.
+
+Detección: activar logs/monitor y buscar patrones sospechosos (pings, intentos SQL).
+
+Hardening: cambiar la configuración, cerrar puertos, poner contraseñas robustas y documentar.
+
+Entregables
+docker build + docker run scripts usados (README con todos los comandos).
+
+Capturas de cada misión cumplida.
+
+Informe breve: qué vulnerabilidad explotaron y cómo la mitigaron.
+
+Código web y SQL usado (index.php, init.sql, flag.txt).
+

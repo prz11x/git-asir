@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bandera de Italia</title>
+  <style>
+    .bandera {
+      width: 300px;      /* ancho total de la bandera */
+      height: 200px;     /* alto total de la bandera */
+      display: flex;     /* coloca las franjas en columnas */
+      border: 2px solid black; /* contorno alrededor de la bandera */
+    }
+    .franja {
+      flex: 1;           /* cada franja ocupa el mismo espacio */
+    }
+    .verde { background-color: green; }
+    .blanca { background-color: white; }
+    .roja { background-color: red; }
+  </style>
+</head>
+<body>
+  <div class="bandera">
+    <div class="franja verde"></div>
+    <div class="franja blanca"></div>
+    <div class="franja roja"></div>
+  </div>
+</body>
+</html>

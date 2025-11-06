@@ -2,25 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Bandera de Francia</title>
+  <title>Bandera de Alemania</title>
   <style>
-    .bandera-francia {
+    .bandera-alemania {
       width: 300px;
       height: 200px;
-      display: flex;              /* franjas en columnas */
-      border: 2px solid black;    /* contorno */
+      border: 2px solid black; /* contorno */
     }
-    .franja { flex: 1; }
-    .azul { background-color: blue; }
-    .blanca { background-color: white; }
+    .franja {
+      width: 100%;
+      height: calc(200px / 3); /* divide en 3 franjas iguales */
+    }
+    .negra { background-color: black; }
     .roja { background-color: red; }
+    .amarilla { background-color: yellow; }
   </style>
 </head>
 <body>
-  <div class="bandera-francia">
-    <div class="franja azul"></div>
-    <div class="franja blanca"></div>
+  <div class="bandera-alemania">
+    <div class="franja negra"></div>
     <div class="franja roja"></div>
+    <div class="franja amarilla"></div>
   </div>
 </body>
 </html>

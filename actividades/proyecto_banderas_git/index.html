@@ -2,26 +2,30 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Bandera de Italia</title>
+  <title>Bandera de España</title>
   <style>
     .bandera {
-      width: 300px;      /* ancho total de la bandera */
-      height: 200px;     /* alto total de la bandera */
-      display: flex;     /* coloca las franjas en columnas */
-      border: 2px solid black; /* contorno alrededor de la bandera */
+      width: 300px;       /* ancho total de la bandera */
+      height: 200px;      /* alto total de la bandera */
+      border: 2px solid black; /* contorno para que se vea bien */
     }
     .franja {
-      flex: 1;           /* cada franja ocupa el mismo espacio */
+      width: 100%;
     }
-    .verde { background-color: green; }
-    .blanca { background-color: white; }
-    .roja { background-color: red; }
+    .roja {
+      background-color: red;
+      height: 50px;       /* altura de las franjas rojas */
+    }
+    .amarilla {
+      background-color: yellow;
+      height: 100px;      /* altura de la franja amarilla (doble) */
+    }
   </style>
 </head>
 <body>
   <div class="bandera">
-    <div class="franja verde"></div>
-    <div class="franja blanca"></div>
+    <div class="franja roja"></div>
+    <div class="franja amarilla"></div>
     <div class="franja roja"></div>
   </div>
 </body>

@@ -1,0 +1,19 @@
+<productos>
+    <lista-productos>
+        <producto>
+            <nombre>Switch2</nombre>
+            <precio>100</precio>
+            <stock>21</stock>
+        </producto>
+        <producto>
+            <nombre>Play</nombre>
+            <precio>100</precio>
+            <stock>21</stock>
+        </producto>
+        <producto>
+            <nombre>Xbox</nombre>
+            <precio>100</precio>
+            <stock>21</stock>
+        </producto>
+    </lista-productos>
+</productos>

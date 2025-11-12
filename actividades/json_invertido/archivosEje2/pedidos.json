@@ -1,0 +1,37 @@
+[
+  {
+    "cliente": {
+      "nombre": "Pablo Ruiz",
+      "email": "pablo.ruiz@example.com",
+      "direccion": "Calle Mayor 123, Madrid"
+    },
+    "productos": [
+      { "nombre": "Tarta de Chocolate", "precio": 15, "cantidad": 2 },
+      { "nombre": "Cheesecake", "precio": 12, "cantidad": 1 },
+      { "nombre": "Brownie", "precio": 8, "cantidad": 3 }
+    ]
+  },
+  {
+    "cliente": {
+      "nombre": "Laura Gómez",
+      "email": "laura.gomez@example.com",
+      "direccion": "Av. del Sol 45, Valencia"
+    },
+    "productos": [
+      { "nombre": "Cupcake de Vainilla", "precio": 5, "cantidad": 6 },
+      { "nombre": "Tarta de Fresa", "precio": 14, "cantidad": 1 }
+    ]
+  },
+  {
+    "cliente": {
+      "nombre": "Carlos López",
+      "email": "carlos.lopez@example.com",
+      "direccion": "Calle Luna 22, Barcelona"
+    },
+    "productos": [
+      { "nombre": "Muffin de Arándanos", "precio": 4, "cantidad": 4 },
+      { "nombre": "Brownie", "precio": 8, "cantidad": 2 },
+      { "nombre": "Tarta de Queso", "precio": 12, "cantidad": 1 }
+    ]
+  }
+]

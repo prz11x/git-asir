@@ -1,0 +1,15 @@
+[
+  {
+          "nombre":"Switch",
+          "precio":323,
+          "stock":7
+  },{
+          "nombre": "Play",
+          "precio": 323,
+          "stock": 7
+  },{
+          "nombre": "Xbox",
+          "precio": 323,
+          "stock": 7
+  }
+]

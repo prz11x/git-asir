@@ -1,18 +1,21 @@
-import mysql.connector 
-from tabulate import tabulate  
+import json
+import mysql.connector
+from tabulate import tabulate
 
-config = {     
-	'user': 'root', 
-	'password': 'Abcd1234',
-	'host': 'mysql-coches',  # nombre del contenedor MySQL 
-	'database': 'coches' 
-} 
-conn = mysql.connector.connect(**config) 
-cursor = conn.cursor() 
-cursor.execute("SELECT * FROM coches") 
-rows = cursor.fetchall()  
+# Leer la configuración desde config.json
+with open('config.json') as f:
+    config = json.load(f)
+
+# Conectar a MySQL
+conn = mysql.connector.connect(**config)
+cursor = conn.cursor()
+
+cursor.execute("SELECT * FROM coches")
+coches = cursor.fetchall()
+
+# Crear la tabla formateada
 headers = ["ID", "Marca", "Modelo", "Color", "Kilometraje", "Precio"]
-print(tabulate(rows, headers, tablefmt="grid"))  
+print(tabulate(coches, headers=headers, tablefmt="grid"))
 
-cursor.close() 
+cursor.close()
 conn.close()

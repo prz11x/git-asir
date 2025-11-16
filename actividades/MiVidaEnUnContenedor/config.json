@@ -1,7 +1,0 @@
-{
-  "host": "mysql-coches",
-  "user": "root",
-  "password": "Abcd1234",
-  "database": "coches",
-  "port": 3306
-}

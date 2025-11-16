@@ -1,4 +1,4 @@
-G:\Mi unidad\BOVEDAS\ASIR2\Docker\Mi vida en un contenedor (Retos Docker).md
+
 **Reto1**
 
 - Crear un contenedor docker de ubuntu.  

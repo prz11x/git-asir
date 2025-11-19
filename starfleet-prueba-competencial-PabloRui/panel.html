@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Diagnóstico — USS Competencial</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: black;
+            color: #33FF99;
+            padding: 20px;
+        }
+        h1 { color: #FF9933; }
+        .panel {
+            border: 2px solid #FF9933;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Panel de Diagnóstico de Ingeniería — USS Competencial</h1>
+
+    <div class="panel">
+        <strong>Estado de Apache:</strong> <span id="apache"></span><br>
+        <strong>Estado de MySQL:</strong> <span id="mysql"></span><br>
+        <strong>Versión de PHP:</strong> <span id="php_version"></span><br>
+        <strong>Versión de Docker:</strong> <span id="docker_version"></span><br>
+        <strong>Versión del kernel:</strong> <span id="kernel_version"></span><br>
+        <strong>Tiempo activo del servidor:</strong> <span id="uptime"></span><br>
+        <strong>Estado del Escudo (UFW):</strong> <span id="ufw"></span>
+    </div>
+
+    <script>
+        fetch('telemetria.json')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('apache').textContent = data.apache;
+            document.getElementById('mysql').textContent = data.mysql;
+            document.getElementById('php_version').textContent = data.php_version;
+            document.getElementById('docker_version').textContent = data.docker_version;
+            document.getElementById('kernel_version').textContent = data.kernel_version;
+            document.getElementById('uptime').textContent = data.uptime;
+            document.getElementById('ufw').textContent = data.ufw;
+        });
+    </script>
+</body>
+</html>

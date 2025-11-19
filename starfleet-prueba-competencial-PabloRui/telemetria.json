@@ -1,0 +1,9 @@
+{
+  "apache": "activo",
+  "mysql": "activo",
+  "php_version": "8.2.12",
+  "docker_version": "24.0.5",
+  "kernel_version": "6.5.0-0-generic",
+  "uptime": "up 3 hours, 12 minutes",
+  "ufw": "activo"
+}

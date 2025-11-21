@@ -147,29 +147,29 @@ chmod +x mision.sh
 
 -  Scoty el jefe de ingenieros quiere que le hagas el mismo script, pero sin menu, ejemplo  nombredelscrript 2, mostraria la opcion 2
 
-#!/bin/bash
+`#!/bin/bash`
 
-case $1 in
-    1)
-        systemctl status apache2
-        systemctl status mysql
-        systemctl status ufw
-        ;;
-    2)
-        uname -r
-        uptime
-        free -h
-        ;;
-    3)
-        docker ps -a
-        ;;
-    4)
-         sudo find / -iname "*starfleet*"
-        ;;
-    *)
-        echo "Uso: $0 {1|2|3|4}"
-        ;;
-esac
+`case $1 in`
+    `1)`
+        `systemctl status apache2`
+        `systemctl status mysql`
+        `systemctl status ufw`
+        `;;`
+    `2)`
+        `uname -r`
+        `uptime`
+        `free -h`
+        `;;`
+    `3)`
+        `docker ps -a`
+        `;;`
+    `4)`
+         `sudo find / -iname "*starfleet*"`
+        `;;`
+    `*)`
+        `echo "Uso: $0 {1|2|3|4}"`
+        `;;`
+`esac`
 
 damos permisos
 

@@ -1,0 +1,7 @@
+Creamos .gitignore y ponemos los archivos que queremos que git ignore.
+
+Comprobamos haber si funciona y lo esta ignorando:
+
+pablo@Rui MINGW64 ~/onedrive/desktop/repositorios/git-asir (main)
+$ git check-ignore -v archivo_ignorado.txt
+.gitignore:5:archivo_ignorado.txt       archivo_ignorado.txt

@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Servicio web1
+  web1:
+    build:
+      context: ./httpd
+      dockerfile: Dockerfile-httpd
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.2
+
+  # Servicio web2
+  web2:
+    build:
+      context: ./httpd
+      dockerfile: Dockerfile-httpd
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.3
+
+  # Servicio de firewall
+  firewall:
+    build:
+      context: ./firewall
+      dockerfile: Dockerfile-firewall
+    cap_add:
+      - NET_ADMIN  # Esto otorga privilegios para manipular la red
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.4
+
+  # Nuevo contenedor Parrot Security OS
+  parrot:
+    build:
+      context: ./parrotsec  # Ubicación del Dockerfile para Parrot Security OS
+      dockerfile: Dockerfile-parrot  # Nombre del Dockerfile que contiene las instrucciones
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.5
+    cap_add:
+      - SYS_ADMIN  # Permite algunos privilegios elevados si es necesario para Parrot OS
+    stdin_open: true  # Mantiene la terminal abierta para interacciones
+    tty: true  # Habilita un terminal interactivo
+
+# Definición de la red "mynetwork"
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16  # Subred definida para la red interna

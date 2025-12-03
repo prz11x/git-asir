@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  web1:
+    build:
+      context: ./httpd
+      dockerfile: Dockerfile-httpd
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.2
+
+  web2:
+    build:
+      context: ./httpd
+      dockerfile: Dockerfile-httpd
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.3
+
+  firewall:
+    build:
+      context: ./firewall
+      dockerfile: Dockerfile-firewall
+    cap_add:
+      - NET_ADMIN
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.4
+
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

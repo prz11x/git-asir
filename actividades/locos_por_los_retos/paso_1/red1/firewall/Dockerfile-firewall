@@ -1,0 +1,6 @@
+# Dockerfile para el firewall
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y iptables
+COPY ./firewall-rules.sh /usr/local/bin/firewall-rules.sh
+RUN chmod +x /usr/local/bin/firewall-rules.sh
+ENTRYPOINT ["/usr/local/bin/firewall-rules.sh"]

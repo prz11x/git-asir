@@ -1,0 +1,21 @@
+# Usar la imagen oficial de Parrot Security OS
+FROM parrotsec/security:latest
+
+# Actualizar y instalar herramientas
+RUN apt-get update && apt-get install -y \
+    metasploit-framework \
+    nmap \
+    burpsuite \
+    wireshark \
+    john \
+    hydra \
+    git \
+    vim \
+    wget \
+    && apt-get clean
+
+# Establecer el directorio de trabajo
+WORKDIR /root
+
+# Ejecutar un comando para mantener el contenedor activo
+CMD [ "bash" ]

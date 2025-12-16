@@ -1,0 +1,58 @@
+{
+  "target": "https://midominio.com",
+  "timestamp_utc": "2025-12-16T12:48:17Z",
+  "config": {
+    "timeout_s": 8,
+    "verify_tls": true,
+    "max_paths": 200,
+    "user_agent": "ReconLite/1.0 (+educational)"
+  },
+  "base_head": {
+    "status": 302,
+    "ms": 814.32,
+    "headers": {
+      "Date": "Tue, 16 Dec 2025 12:48:17 GMT",
+      "Server": "Apache",
+      "Location": "/portal/",
+      "Keep-Alive": "timeout=5, max=100",
+      "Connection": "Keep-Alive",
+      "Content-Type": "text/html; charset=UTF-8"
+    }
+  },
+  "fingerprint": {
+    "server": "Apache",
+    "x_powered_by": null,
+    "via": null
+  },
+  "security_headers": {
+    "present": {},
+    "missing": [
+      "Strict-Transport-Security",
+      "Content-Security-Policy",
+      "X-Content-Type-Options",
+      "X-Frame-Options",
+      "Referrer-Policy",
+      "Permissions-Policy",
+      "Cross-Origin-Opener-Policy",
+      "Cross-Origin-Resource-Policy",
+      "Cross-Origin-Embedder-Policy"
+    ],
+    "notes": [
+      "No HSTS: si es un sitio web público, se suele recomendar forzar HTTPS con HSTS.",
+      "X-Content-Type-Options no es 'nosniff' (o falta).",
+      "Sin CSP: suele reducir impacto de XSS (no lo elimina)."
+    ]
+  },
+  "findings": [
+    {
+      "path": "/robots.txt",
+      "url": "https://midominio.com/robots.txt",
+      "error": null,
+      "ms": 100.35,
+      "status": 200,
+      "content_type": "text/plain",
+      "content_length": "645",
+      "location": null
+    }
+  ]
+}

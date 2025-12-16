@@ -1,0 +1,4 @@
+admin
+admin/
+robots.txt
+api/v1

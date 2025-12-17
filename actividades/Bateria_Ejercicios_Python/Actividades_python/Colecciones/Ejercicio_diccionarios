@@ -1,0 +1,10 @@
+diccionario={"nombre":"rui", "edad":"23", "ciudad":"madrid"}
+
+print(diccionario)
+
+diccionario["nombre"]="carlos"
+
+print(diccionario)
+
+del diccionario["ciudad"]
+print(diccionario)

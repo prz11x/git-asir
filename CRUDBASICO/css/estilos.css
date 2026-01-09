@@ -1,0 +1,44 @@
+header{
+    width: 100%;
+   padding: 30px;
+    background: #000;
+    color: #FFF;
+    text-align: center;
+    line-height: 10px;
+}
+nav{
+    border-bottom: 1px solid #999;
+}
+footer{
+    width: 100%;
+
+    background: #000;
+    color: #FFF;
+    text-align: center;
+    padding: 15px;
+}
+.formulario{
+    width: 50%;
+    padding: 15px;
+    margin: auto;
+    overflow: hidden;
+    border: 1px solid #999999;
+}
+
+table{
+    width: 80%;
+    margin: auto;
+
+}
+table td img{
+    width: 75px;
+}
+
+table tr{
+    border-bottom: #999999 solid 1px;
+}
+
+table th{
+    background: black;
+    color: #FFFFFF;
+}
